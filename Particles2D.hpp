@@ -42,7 +42,7 @@ namespace Particles2D
             }
     };
 
-    enum class ParticleBehavior { FireWorks=1, Pulse=2, Laser=3, ShotGun=4, Custom };
+    enum class ParticleBehavior { FireWorks=1, Pulse=2, Laser=3, ShotGun=4, Smoke=5, Custom };
 
     class ParticleData
     {
@@ -135,7 +135,7 @@ namespace Particles2D
 
             void init(int numberofparticles, ParticleData PS = ParticleData())
             {
-                SetCustomDrawFunc(drawCircleStyle);
+                SetCustomDrawFunc(drawBubbleStyle);
 
                 m_Setup = PS;
 
@@ -170,8 +170,15 @@ namespace Particles2D
             {
                 m_Timer -= fElapsedTime;
 
+                int index;
                 for (auto it = m_Particles.begin(); it != m_Particles.end(); it++)
                 {
+                    index++;
+                    srand(time(0) + index);
+                    if (m_Setup.behavior == ParticleBehavior::Smoke)
+                    {
+                        
+                    }
                     it->update(fElapsedTime);
                 }
 
@@ -195,10 +202,10 @@ namespace Particles2D
                     
                     vf2d direction;
                     float fAngle = atan2(destination.y - startPos.y, destination.x - startPos.x);
+                    float fIndexRatio = float((float)index / m_Particles.size());
 
                     if (m_Setup.behavior == ParticleBehavior::Laser)
                     {
-                        
                         float fSpeed = (m_Setup.speed * (float(index)/m_Particles.size()));
                         if (fSpeed < m_Setup.speed * 0.5f) fSpeed += m_Setup.speed * 0.5f;
                         direction = (destination - startPos).norm() * fSpeed;
@@ -208,8 +215,11 @@ namespace Particles2D
                     {
                         float fSpeed = m_Setup.speed;
                         float fTheta = PI * 0.25f / m_Particles.size();
+                        float fAngle = atan2(destination.y - startPos.y, destination.x - startPos.x);
+                        float fRotation = fAngle;
+                        int iHalfOfParticles = m_Particles.size() / 2 + 1 | 0;
 
-                        direction = {cos(fTheta * index + fAngle) * fSpeed, sin(fTheta * index + fAngle) * fSpeed};
+                        direction = vf2d(cos(fTheta * (index-iHalfOfParticles) + fAngle) * fSpeed, sin(fTheta * (index-iHalfOfParticles) + fAngle) * fSpeed);
 
                         i->SetVelocity(direction);
                     }

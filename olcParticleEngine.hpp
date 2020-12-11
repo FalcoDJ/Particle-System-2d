@@ -18,7 +18,7 @@ public:
 private:
     Particles2D::ParticlesSystem PartSys;
     Particles2D::ParticleData PartData;
-    int numParticles = 314;
+    int numParticles = 5;
     int currentBehaviorID;
     bool toggleSwitch = false;
     vf2d destination;
@@ -28,11 +28,11 @@ private:
     bool OnUserCreate() override
     {
         PartData.behavior = Particles2D::ParticleBehavior::ShotGun;
-        PartData.color = Pixel(200, 228, 0);
+        PartData.color = Pixel(200,214,0);
         PartData.duration = 2.0f;
         PartData.fade = true;
-        PartData.size = 0;
-        PartData.speed = 128.0f;
+        PartData.size = 4;
+        PartData.speed = 200.0f;
         PartSys.init(numParticles, PartData);
         return true;
     }
@@ -77,13 +77,16 @@ private:
 
             PartSys.init(numParticles, PartData);
 
-            if (currentBehaviorID > 2)
+            if (currentBehaviorID > 2 && currentBehaviorID < 5) //Laser and ShotGun
             {
                 srand(time(0) + 512);
                 PartSys.emitParticles(ScreenSize/2, destination);
             }
-            else
+            else if (currentBehaviorID < 3) //FireWorks and Pulse
                 PartSys.emitParticles(ScreenSize/2);
+            else //Smoke
+                PartSys.emitParticles(vf2d((ScreenSize/2).x,ScreenSize.y));
+
         }
         
 
