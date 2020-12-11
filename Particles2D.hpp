@@ -6,7 +6,7 @@
 using namespace std;
 using namespace olc;
 
-namespace Particles2D
+namespace Particles2D 
 {
     float PI = 3.141592f;
 
@@ -147,7 +147,7 @@ namespace Particles2D
                     if (m_Setup.behavior == ParticleBehavior::FireWorks)
                     {
                         float fSpeed = (rand() % (int)m_Setup.speed/2) + m_Setup.speed/2;
-                        float fAngle = (rand() % 360) * PI / 180.0f;
+                        float fAngle = (rand() % 360) * Particles2D::PI / 180.0f;
 
                         direction = {cos(fAngle) * fSpeed, sin(fAngle) * fSpeed};
                     }

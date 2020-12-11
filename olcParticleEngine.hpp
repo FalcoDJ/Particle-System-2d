@@ -6,10 +6,41 @@
 
 using namespace olc;
 
+class Circle 
+{
+    private:
+        vf2d m_Pos;
+        float m_Radius;
+    public:
+        Circle(){}
+        Circle(vf2d pos, float radius) : m_Pos(pos), m_Radius(radius) {}
+        ~Circle(){}
+
+        vf2d getPos() { return m_Pos; }
+        void setPos(vf2d position) { m_Pos = position; }
+        
+        float getRadius() { return m_Radius; }
+        void setRadius(float radius) { m_Radius = radius; }
+
+        Circle& operator >> (const vf2d& cfp) { this->m_Pos.x = cfp.x; this->m_Pos.y = cfp.y; }
+};
+
+bool CircleCollides(Circle c1o, Circle c2o)
+{
+    float distanceX = c1o.getPos().x - c2o.getPos().x;
+    float distanceY = c1o.getPos().y - c2o.getPos().y;
+    float diameter = (c1o.getRadius() + c2o.getRadius());
+    if (distanceX * distanceX + distanceY * distanceY < diameter * diameter)
+    return true;
+    return false;
+}
+
 class olcParticleEngine : public olc::PixelGameEngine
 {
 public:
+    
     vf2d ScreenSize = {512,512};
+
     olcParticleEngine()
     {
         sAppName = "(PGE) Particle Engine";
@@ -18,21 +49,25 @@ public:
 private:
     Particles2D::ParticlesSystem PartSys;
     Particles2D::ParticleData PartData;
-    int numParticles = 5;
+    int numParticles = 314;
     int currentBehaviorID;
-    bool toggleSwitch = false;
-    vf2d destination;
+    bool toggleSwitch = true;
+    Circle destination = Circle({}, 6);
+    Circle origin = Circle({}, 6);
 
 private:
 
     bool OnUserCreate() override
     {
+        origin >> vf2d(32,32);
+        destination >> ScreenSize/2;
+
         PartData.behavior = Particles2D::ParticleBehavior::ShotGun;
         PartData.color = Pixel(200,214,0);
         PartData.duration = 2.0f;
         PartData.fade = true;
         PartData.size = 4;
-        PartData.speed = 200.0f;
+        PartData.speed = 600.0f;
         PartSys.init(numParticles, PartData);
         return true;
     }
@@ -40,13 +75,17 @@ private:
     {
         Clear(BLACK);
 
+        Circle cMouse(GetMousePos(), 12); 
         
         if (GetMouse(0).bHeld)
-        destination = GetMousePos();
+        {
+            if (CircleCollides(origin, cMouse))
+            origin >> GetMousePos();
+        }
 
-        DrawCircle(destination, PartData.size*2, RED);
-        DrawCircle(ScreenSize/2, PartData.size*2, RED);
-        DrawLine(ScreenSize/2, destination, RED);
+        DrawCircle(destination.getPos(), destination.getRadius(), RED);
+        FillCircle(origin.getPos(), origin.getRadius(), RED);
+        DrawLine(origin.getPos(), destination.getPos(), RED);
 
         if (PartSys.IsRunning())
         {
@@ -56,6 +95,8 @@ private:
         else
         {
             PartSys.destroy();
+
+            PartData.color = Pixel(200,200,0);
 
             if (toggleSwitch)
             {
@@ -80,12 +121,12 @@ private:
             if (currentBehaviorID > 2 && currentBehaviorID < 5) //Laser and ShotGun
             {
                 srand(time(0) + 512);
-                PartSys.emitParticles(ScreenSize/2, destination);
+                PartSys.emitParticles(origin.getPos(), destination.getPos());
             }
             else if (currentBehaviorID < 3) //FireWorks and Pulse
-                PartSys.emitParticles(ScreenSize/2);
+                PartSys.emitParticles(origin.getPos());
             else //Smoke
-                PartSys.emitParticles(vf2d((ScreenSize/2).x,ScreenSize.y));
+                PartSys.emitParticles(origin.getPos());
 
         }
         
