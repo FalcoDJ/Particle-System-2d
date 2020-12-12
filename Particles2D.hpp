@@ -201,7 +201,7 @@ namespace Particles2D
                     {
                         float fSpeed = m_Setup.speed;
                         float fTheta = PI * 0.25f / m_Particles.size();
-                        float fRotation = index + m_Particles.size() * -1.5;
+                        float fRotation = index + floor(m_Particles.size() * -1.5);
 
                         direction = {cos(fTheta * fRotation + fAngle) * fSpeed, sin(fTheta * fRotation + fAngle) * fSpeed};
 

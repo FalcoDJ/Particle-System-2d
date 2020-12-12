@@ -51,7 +51,7 @@ public:
 private:
     Particles2D::ParticlesSystem PartSys;
     Particles2D::ParticleData PartData;
-    int numParticles = 500;
+    int numParticles = 7;
     int currentBehaviorID;
     bool toggleSwitch = true;
     Circle destination = Circle({}, 6);
@@ -81,15 +81,20 @@ private:
 
         PartData.behavior = Particles2D::ParticleBehavior::ShotGun;
         PartData.color = Pixel(200,214,0);
-        PartData.duration = 0.64f;
+        PartData.duration = 2.0f;
         PartData.fade = true;
-        PartData.size = 4;
-        PartData.speed = 400.0f;
+        PartData.size = 8;
+        PartData.speed = 128.0f;
         PartSys.init(numParticles, PartData);
 
         #ifdef DEBUG_APPLICATION
-        cout << "\nEnter Desired FPS!\n";
+        cout << "\n#### Enter Desired FPS ####\n";
         cin >> iTargetFPS;
+
+        PartData.size = 0;
+        PartData.speed = 300.0f;
+        PartData.duration = 0.75f;
+        
         #endif
         return true;
     }
@@ -152,7 +157,7 @@ private:
         if (PartSys.IsRunning())
         {
             PartSys.update(GetElapsedTime());
-            PartSys.drawSquareStyle(this);
+            PartSys.drawBubbleStyle(this);
         }
         else
         {

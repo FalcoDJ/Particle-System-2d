@@ -4,5 +4,5 @@
 
 To run this just run ```./run.sh```
 
-If you would like to run it in debug mode type ```./run.sh -d```
+If you would like to run it in debug mode type ```./run.sh -d``` or ```./run.sh --debug```
 You will be asked to enter your disred FPS in the console!
