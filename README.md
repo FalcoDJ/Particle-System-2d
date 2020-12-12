@@ -1,6 +1,6 @@
-#Particle System 2d
+# Particle System 2d
 
-###Intructions
+### Intructions
 
 To run this just run ```./run.sh```
 
