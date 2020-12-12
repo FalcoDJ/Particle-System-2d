@@ -140,6 +140,10 @@ private:
             if (CircleCollides(origin, cMouse))
             origin << GetMousePos();
         }
+        if (GetKey(Key::TAB).bPressed)
+        {
+            toggleSwitch = !toggleSwitch;
+        }
 
         DrawCircle(destination.getPos(), destination.getRadius(), RED);
         FillCircle(origin.getPos(), origin.getRadius(), RED);
@@ -148,13 +152,13 @@ private:
         if (PartSys.IsRunning())
         {
             PartSys.update(GetElapsedTime());
-            PartSys.drawParticles(this);
+            PartSys.drawSquareStyle(this);
         }
         else
         {
             PartSys.destroy();
 
-            PartData.color = Pixel(rand() % 255,rand() % 255,rand() % 255);  
+            PartData.color = Pixel(rand() % 255,rand() % 255,rand() % 255);
 
             if (toggleSwitch)
             {

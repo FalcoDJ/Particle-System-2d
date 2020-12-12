@@ -6,7 +6,7 @@
 using namespace std;
 using namespace olc;
 
-namespace Particles2D 
+namespace Particles2D
 {
     float PI = 3.141592f;
 
@@ -42,7 +42,7 @@ namespace Particles2D
             }
     };
 
-    enum class ParticleBehavior { FireWorks=1, Pulse=2, Laser=3, ShotGun=4, Smoke=5, Custom };
+    enum class ParticleBehavior { FireWorks=1, Pulse=2, Laser=3, ShotGun=4, Custom };
 
     class ParticleData
     {
@@ -71,76 +71,65 @@ namespace Particles2D
             ParticlesSystem(int numberofparticles){};
             ~ParticlesSystem(){};
 
-            void SetCustomDrawFunc(std::function<void(olc::PixelGameEngine *pge)> draw)
-            {
-                drawParticles = draw;
-            }
-
-            std::function<void(olc::PixelGameEngine *pge)> drawCircleStyle = [&](olc::PixelGameEngine *pge)
+            void drawCircleStyle(olc::PixelGameEngine *pge)
             {
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
                     if (fAlphaOpacity < 0) fAlphaOpacity = 0;
-                    if (!m_Setup.fade)
-                    fAlphaOpacity = 255.0f;
+                    if (!m_Setup.fade) fAlphaOpacity = 255.0f;
 
                     pge->FillCircle(m_Particles[i].GetPosition(), m_Setup.size, Pixel(m_Setup.color.r, m_Setup.color.g, m_Setup.color.b, fAlphaOpacity));
                 }
-            };
+            }
 
-            std::function<void(olc::PixelGameEngine *pge)> drawBubbleStyle = [&](olc::PixelGameEngine *pge)
+            void drawBubbleStyle(olc::PixelGameEngine *pge)
             {
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
                     if (fAlphaOpacity < 0) fAlphaOpacity = 0;
-                    if (!m_Setup.fade)
-                    fAlphaOpacity = 255.0f;
+                    if (!m_Setup.fade) fAlphaOpacity = 255.0f;
 
                     pge->DrawCircle(m_Particles[i].GetPosition(), m_Setup.size, Pixel(m_Setup.color.r, m_Setup.color.g, m_Setup.color.b, fAlphaOpacity));
                 }
-            };
+            }
 
-            std::function<void(olc::PixelGameEngine *pge)> drawSquareStyle = [&](olc::PixelGameEngine *pge)
+            void drawSquareStyle(olc::PixelGameEngine *pge)
             {
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
                     if (fAlphaOpacity < 0) fAlphaOpacity = 0;
-                    if (!m_Setup.fade)
-                    fAlphaOpacity = 255.0f;
+                    if (!m_Setup.fade) fAlphaOpacity = 255.0f;
 
-                    pge->FillRect(m_Particles[i].GetPosition() - vf2d(m_Setup.size,m_Setup.size)/2, vf2d(m_Setup.size,m_Setup.size),Pixel(m_Setup.color.r, m_Setup.color.g, m_Setup.color.b, fAlphaOpacity));
+                    pge->FillRect(m_Particles[i].GetPosition() - vf2d(m_Setup.size,m_Setup.size), vf2d(m_Setup.size,m_Setup.size)*2,Pixel(m_Setup.color.r, m_Setup.color.g, m_Setup.color.b, fAlphaOpacity));
                 }
-            };
+            }
 
-            std::function<void(olc::PixelGameEngine *pge)> drawTriangleStyle = [&](olc::PixelGameEngine *pge)
+            void drawTriangleStyle(olc::PixelGameEngine *pge)
             {
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
                     if (fAlphaOpacity < 0) fAlphaOpacity = 0;
-                    if (!m_Setup.fade)
-                    fAlphaOpacity = 255.0f;
+                    if (!m_Setup.fade) fAlphaOpacity = 255.0f;
 
                     vf2d v1 = m_Particles[i].GetPosition();
-                    v1.y -= m_Setup.size;
+                    v1.y -= m_Setup.size*2;
                     vf2d v2 = m_Particles[i].GetPosition();
-                    v2.x -= m_Setup.size * 0.5f;
+                    v2.x -= m_Setup.size;
                     vf2d v3 = m_Particles[i].GetPosition();
-                    v3.x += m_Setup.size * 0.5f;
+                    v3.x += m_Setup.size;
 
                     pge->FillTriangle(v1,v2,v3, Pixel(m_Setup.color.r, m_Setup.color.g, m_Setup.color.b, fAlphaOpacity));
                 }
-            };
+            }
             
             std::function<void(olc::PixelGameEngine *pge)> drawParticles;
 
             void init(int numberofparticles, ParticleData PS = ParticleData())
             {
-                SetCustomDrawFunc(drawBubbleStyle);
-
                 m_Setup = PS;
 
                 vf2d direction;
@@ -151,7 +140,7 @@ namespace Particles2D
                     if (m_Setup.behavior == ParticleBehavior::FireWorks)
                     {
                         float fSpeed = (rand() % (int)m_Setup.speed/2) + m_Setup.speed/2;
-                        float fAngle = (rand() % 360) * Particles2D::PI / 180.0f;
+                        float fAngle = (rand() % 360) * PI / 180.0f;
 
                         direction = {cos(fAngle) * fSpeed, sin(fAngle) * fSpeed};
                     }
@@ -174,15 +163,8 @@ namespace Particles2D
             {
                 m_Timer -= fElapsedTime;
 
-                int index;
                 for (auto it = m_Particles.begin(); it != m_Particles.end(); it++)
                 {
-                    index++;
-                    srand(time(0) + index);
-                    if (m_Setup.behavior == ParticleBehavior::Smoke)
-                    {
-                        
-                    }
                     it->update(fElapsedTime);
                 }
 
@@ -206,10 +188,10 @@ namespace Particles2D
                     
                     vf2d direction;
                     float fAngle = atan2(destination.y - startPos.y, destination.x - startPos.x);
-                    float fIndexRatio = float((float)index / m_Particles.size());
 
                     if (m_Setup.behavior == ParticleBehavior::Laser)
                     {
+                        
                         float fSpeed = (m_Setup.speed * (float(index)/m_Particles.size()));
                         if (fSpeed < m_Setup.speed * 0.5f) fSpeed += m_Setup.speed * 0.5f;
                         direction = (destination - startPos).norm() * fSpeed;
@@ -219,11 +201,9 @@ namespace Particles2D
                     {
                         float fSpeed = m_Setup.speed;
                         float fTheta = PI * 0.25f / m_Particles.size();
-                        float fAngle = atan2(destination.y - startPos.y, destination.x - startPos.x);
-                        float fRotation = fAngle;
-                        int iHalfOfParticles = m_Particles.size() / 2 + 1 | 0;
+                        float fRotation = index + m_Particles.size() * -1.5;
 
-                        direction = vf2d(cos(fTheta * (index-iHalfOfParticles) + fAngle) * fSpeed, sin(fTheta * (index-iHalfOfParticles) + fAngle) * fSpeed);
+                        direction = {cos(fTheta * fRotation + fAngle) * fSpeed, sin(fTheta * fRotation + fAngle) * fSpeed};
 
                         i->SetVelocity(direction);
                     }
