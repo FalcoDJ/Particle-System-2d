@@ -81,6 +81,7 @@ namespace Particles2D
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
+                    if (fAlphaOpacity < 0) fAlphaOpacity = 0;
                     if (!m_Setup.fade)
                     fAlphaOpacity = 255.0f;
 
@@ -93,6 +94,7 @@ namespace Particles2D
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
+                    if (fAlphaOpacity < 0) fAlphaOpacity = 0;
                     if (!m_Setup.fade)
                     fAlphaOpacity = 255.0f;
 
@@ -105,6 +107,7 @@ namespace Particles2D
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
+                    if (fAlphaOpacity < 0) fAlphaOpacity = 0;
                     if (!m_Setup.fade)
                     fAlphaOpacity = 255.0f;
 
@@ -117,6 +120,7 @@ namespace Particles2D
                 for (int i = 0; i < m_Particles.size(); i++)
                 {
                     float fAlphaOpacity = float(m_Timer / m_Setup.duration) * 255.0f;
+                    if (fAlphaOpacity < 0) fAlphaOpacity = 0;
                     if (!m_Setup.fade)
                     fAlphaOpacity = 255.0f;
 

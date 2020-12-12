@@ -1,8 +1,10 @@
 #ifndef OLC_PARTICLE_ENGINE
 #define OLC_PARTICLE_ENGINE
 
+#define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 #include "Particles2D.hpp"
+#include <sstream>
 
 using namespace olc;
 
@@ -22,7 +24,7 @@ class Circle
         float getRadius() { return m_Radius; }
         void setRadius(float radius) { m_Radius = radius; }
 
-        Circle& operator >> (const vf2d& cfp) { this->m_Pos.x = cfp.x; this->m_Pos.y = cfp.y; }
+        Circle& operator << (const vf2d& cfp) { this->m_Pos.x = cfp.x; this->m_Pos.y = cfp.y; }
 };
 
 bool CircleCollides(Circle c1o, Circle c2o)
@@ -49,38 +51,94 @@ public:
 private:
     Particles2D::ParticlesSystem PartSys;
     Particles2D::ParticleData PartData;
-    int numParticles = 314;
+    int numParticles = 500;
     int currentBehaviorID;
     bool toggleSwitch = true;
     Circle destination = Circle({}, 6);
     Circle origin = Circle({}, 6);
 
+    #ifdef DEBUG_APPLICATION
+    int iTotalFrames;
+    int iFPS;
+    int iTargetFPS = 60;
+    int iLastNumParts;
+    float fTotalRunTime;
+    float fOneSecTimer;
+    float fTimeSinceLastDrop;
+
+    ostringstream ss1;
+    string st1;
+    #endif
+
 private:
 
     bool OnUserCreate() override
     {
-        origin >> vf2d(32,32);
-        destination >> ScreenSize/2;
+        SetPixelMode(Pixel::NORMAL);
+
+        origin << ScreenSize*0.55f;
+        destination << ScreenSize*0.5f;
 
         PartData.behavior = Particles2D::ParticleBehavior::ShotGun;
         PartData.color = Pixel(200,214,0);
-        PartData.duration = 2.0f;
+        PartData.duration = 0.64f;
         PartData.fade = true;
         PartData.size = 4;
-        PartData.speed = 600.0f;
+        PartData.speed = 400.0f;
         PartSys.init(numParticles, PartData);
+
+        #ifdef DEBUG_APPLICATION
+        cout << "\nEnter Desired FPS!\n";
+        cin >> iTargetFPS;
+        #endif
         return true;
     }
     bool OnUserUpdate(float fElapsedTime) override
     {
         Clear(BLACK);
 
+        #ifdef DEBUG_APPLICATION
+
+        if (fOneSecTimer >= 1.0f)
+        {
+            fOneSecTimer = 0.0f;
+            iLastNumParts = numParticles;
+            if (iFPS < iTargetFPS)
+            numParticles -= iFPS * 2;
+            else
+            numParticles += iFPS * 0.25f;
+        }
+
+        if (iFPS < iTargetFPS)
+        {
+            fTimeSinceLastDrop = 0.0f;
+        }
+        else
+        {
+            fTimeSinceLastDrop += GetElapsedTime();
+        }
+        
+        iFPS = GetFPS();
+
+        iTotalFrames++;
+        fTotalRunTime += GetElapsedTime();
+        fOneSecTimer += GetElapsedTime();
+
+        int tRunTime = floor(fTotalRunTime);
+        int tLastDropTime = floor(fTimeSinceLastDrop);
+
+        DrawStringDecal({20,20},"Ideal Maximum number of Particles is about: " + to_string(numParticles));
+        DrawStringDecal({20,40},"Time Since FPS Dropped Below " + to_string(iTargetFPS) + ": " + to_string(tLastDropTime) + "s.");
+        DrawStringDecal({20,60},"RunTime: " + to_string(tRunTime) + "s.");
+
+        #endif
+
         Circle cMouse(GetMousePos(), 12); 
         
         if (GetMouse(0).bHeld)
         {
             if (CircleCollides(origin, cMouse))
-            origin >> GetMousePos();
+            origin << GetMousePos();
         }
 
         DrawCircle(destination.getPos(), destination.getRadius(), RED);
@@ -96,7 +154,7 @@ private:
         {
             PartSys.destroy();
 
-            PartData.color = Pixel(200,200,0);
+            PartData.color = Pixel(rand() % 255,rand() % 255,rand() % 255);  
 
             if (toggleSwitch)
             {
@@ -112,9 +170,6 @@ private:
                 PartData.behavior != Particles2D::ParticleBehavior(currentBehaviorID);
                 currentBehaviorID++);
             }
-            
-
-            PartData.fade = !PartData.fade;
 
             PartSys.init(numParticles, PartData);
 
@@ -141,3 +196,12 @@ private:
 };
 
 #endif
+
+int main(int argc, char const *argv[])
+{
+    olcParticleEngine demo;
+
+    if (demo.Construct(demo.ScreenSize.x, demo.ScreenSize.y, 1, 1))
+        demo.Start();
+    return 0;
+}
