@@ -191,7 +191,6 @@ namespace Particles2D
 
                     if (m_Setup.behavior == ParticleBehavior::Laser)
                     {
-                        
                         float fSpeed = (m_Setup.speed * (float(index)/m_Particles.size()));
                         if (fSpeed < m_Setup.speed * 0.5f) fSpeed += m_Setup.speed * 0.5f;
                         direction = (destination - startPos).norm() * fSpeed;

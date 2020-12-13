@@ -51,7 +51,7 @@ public:
 private:
     Particles2D::ParticlesSystem PartSys;
     Particles2D::ParticleData PartData;
-    int numParticles = 7;
+    int numParticles = 314;
     int currentBehaviorID;
     bool toggleSwitch = true;
     Circle destination = Circle({}, 6);
@@ -60,11 +60,13 @@ private:
     #ifdef DEBUG_APPLICATION
     int iTotalFrames;
     int iFPS;
-    int iTargetFPS = 60;
+    int iTargetFPS = 73000;
     int iLastNumParts;
     float fTotalRunTime;
     float fOneSecTimer;
     float fTimeSinceLastDrop;
+
+    bool bFoundINP;
 
     ostringstream ss1;
     string st1;
@@ -81,10 +83,10 @@ private:
 
         PartData.behavior = Particles2D::ParticleBehavior::ShotGun;
         PartData.color = Pixel(200,214,0);
-        PartData.duration = 2.0f;
+        PartData.duration = 1.0f;
         PartData.fade = true;
-        PartData.size = 8;
-        PartData.speed = 128.0f;
+        PartData.size = 6;
+        PartData.speed = 300.0f;
         PartSys.init(numParticles, PartData);
 
         #ifdef DEBUG_APPLICATION
@@ -92,9 +94,7 @@ private:
         cin >> iTargetFPS;
 
         PartData.size = 0;
-        PartData.speed = 300.0f;
-        PartData.duration = 0.75f;
-        
+
         #endif
         return true;
     }
@@ -103,16 +103,9 @@ private:
         Clear(BLACK);
 
         #ifdef DEBUG_APPLICATION
-
-        if (fOneSecTimer >= 1.0f)
-        {
-            fOneSecTimer = 0.0f;
-            iLastNumParts = numParticles;
-            if (iFPS < iTargetFPS)
-            numParticles -= iFPS * 2;
-            else
-            numParticles += iFPS * 0.25f;
-        }
+        iTotalFrames++;
+        fTotalRunTime += GetElapsedTime();
+        fOneSecTimer += GetElapsedTime();
 
         if (iFPS < iTargetFPS)
         {
@@ -122,19 +115,27 @@ private:
         {
             fTimeSinceLastDrop += GetElapsedTime();
         }
+
+        if (iFPS < iTargetFPS*2 && fTotalRunTime > 10.0f)
+        bFoundINP = true;
+
+        if (!PartSys.IsRunning() && !bFoundINP)
+        {
+            if (iFPS < iTargetFPS)
+            numParticles -= iTargetFPS-iFPS;
+            else
+            numParticles += iFPS;
+        }
         
         iFPS = GetFPS();
-
-        iTotalFrames++;
-        fTotalRunTime += GetElapsedTime();
-        fOneSecTimer += GetElapsedTime();
 
         int tRunTime = floor(fTotalRunTime);
         int tLastDropTime = floor(fTimeSinceLastDrop);
 
         DrawStringDecal({20,20},"Ideal Maximum number of Particles is about: " + to_string(numParticles));
         DrawStringDecal({20,40},"Time Since FPS Dropped Below " + to_string(iTargetFPS) + ": " + to_string(tLastDropTime) + "s.");
-        DrawStringDecal({20,60},"RunTime: " + to_string(tRunTime) + "s.");
+        DrawStringDecal({20,60},"FPS: " + to_string(iFPS) + ", Total Frame Count: " + to_string(iTotalFrames));
+        DrawStringDecal({20,80},"RunTime: " + to_string(tRunTime) + "s.");
 
         #endif
 
