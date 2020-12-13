@@ -60,7 +60,9 @@ private:
     #ifdef DEBUG_APPLICATION
     int iTotalFrames;
     int iFPS;
-    int iTargetFPS = 73000;
+
+    int iTargetFPS = 60;
+
     int iLastNumParts;
     float fTotalRunTime;
     float fOneSecTimer;
@@ -85,17 +87,22 @@ private:
         PartData.color = Pixel(200,214,0);
         PartData.duration = 1.0f;
         PartData.fade = true;
-        PartData.size = 6;
+        PartData.size = 0;
         PartData.speed = 300.0f;
         PartSys.init(numParticles, PartData);
 
         #ifdef DEBUG_APPLICATION
-        cout << "\n#### Enter Desired FPS ####\n";
-        cin >> iTargetFPS;
+
+        #ifdef TFPS
+        iTargetFPS = TFPS;
+        #endif
+
+        numParticles = 0;
 
         PartData.size = 0;
 
         #endif
+
         return true;
     }
     bool OnUserUpdate(float fElapsedTime) override
@@ -103,6 +110,9 @@ private:
         Clear(BLACK);
 
         #ifdef DEBUG_APPLICATION
+
+        if (numParticles < 0) numParticles = 0;
+
         iTotalFrames++;
         fTotalRunTime += GetElapsedTime();
         fOneSecTimer += GetElapsedTime();
